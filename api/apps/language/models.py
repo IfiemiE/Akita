@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+#from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -69,4 +71,12 @@ class Source(models.Model):
     pass
 
 class CommunityNote(models.Model):
+    pass
+
+class GrammarTopic(models.Model):
+    """For teaching grammar patterns and observed rules"""
+    pass
+
+class SentencePattern(models.Model):
+    """Common sentence structures"""
     pass
