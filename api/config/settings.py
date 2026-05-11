@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     
     # Custom Apps
     'apps.core.apps.CoreConfig',
-    'apps.culture.apps.CultureConfig',
-    'apps.language.apps.LanguageConfig',
     'apps.users.apps.UsersConfig',   
-    
+    'apps.lexicon.apps.LexiconConfig',
+    'apps.constructions.apps.ConstructionsConfig',
+    'apps.challenges.apps.ChallengesConfig',
+    'apps.culture.apps.CultureConfig',
+    'apps.workflow.apps.WorkflowConfig',
 ]
 
 MIDDLEWARE = [
@@ -122,7 +124,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Custom User model
-AUTH_USER_MODEL = 'users.akitaUser'
+AUTH_USER_MODEL = 'users.AkitaUser'
 
 
 # Internationalization
