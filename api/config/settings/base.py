@@ -131,7 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Custom User model
-#AUTH_USER_MODEL = 'users.AkitaUser'
+AUTH_USER_MODEL = 'identity_users.AkitaUser'
 
 
 # Internationalization
