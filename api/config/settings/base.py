@@ -30,7 +30,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS = [ 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     
     # Custom Apps
-    'apps.identity.users',
+    'apps.identity.users', # custom user app
     'apps.infrastructure.core',
     'apps.documentation.lexicon',
     'apps.documentation.media_annotations',
