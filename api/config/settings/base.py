@@ -27,6 +27,13 @@ SECRET_KEY = 'django-insecure-7l&zw4iecd+(-nh!fan#57b2gdh$cmre$%l8+8(02(yr-mjik+
 
 ALLOWED_HOSTS = []
 
+# Custom User model
+AUTH_USER_MODEL = 'identity_users.AkitaUser'
+
+# Fixture Directories and Files
+FIXTURE_DIRS = [
+    BASE_DIR/'fixtures',
+]
 
 # Application definition
 
@@ -129,9 +136,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-# Custom User model
-AUTH_USER_MODEL = 'identity_users.AkitaUser'
 
 
 # Internationalization

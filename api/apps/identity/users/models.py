@@ -1,20 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from apps.infrastructure.core.models import Community
+#from apps.infrastructure.core.models import Community
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class UserRole(models.TextChoices):
-    SUPERUSER = 'superuser', 'Superuser'
-    ADMIN = 'admin', 'Admin'
-    EDITOR = 'editor', 'Editor/Moderator'
     CONTRIBUTOR = 'contributor', 'Contributor'
+    EDITOR = 'editor', 'Editor/Moderator'
+    ADMIN = 'admin', 'Admin'
+    SUPERUSER = 'superuser', 'Superuser'
 
 
 class AkitaUser(AbstractUser):
-    """
-    Custom user model with role hierarchy, community affiliation,
-    contributor levels, and elevation tracking.
-    """
     role = models.CharField(
         max_length=20,
         choices=UserRole.choices,
@@ -22,16 +18,11 @@ class AkitaUser(AbstractUser):
         db_index=True
     )
     community = models.ForeignKey(
-        Community,
+        'infrastructure_core.Community',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='members'
-    )
-    contributor_level = models.PositiveSmallIntegerField(
-        default=1,
-        validators=[MinValueValidator(1), MaxValueValidator(99)],
-        help_text="Higher levels can deactivate lower levels (1-99)"
     )
     registered_by = models.ForeignKey(
         'self',
@@ -48,22 +39,37 @@ class AkitaUser(AbstractUser):
     )
     speaks_for_self = models.BooleanField(
         default=True,
-        help_text="This contributor is also a speaker"
+        help_text="This user is also a speaker"
     )
-    # Elevation tracking (Contributor → Editor)
+    is_active = models.BooleanField(default=True)
+
+    # Elevation tracking (Contributor → Editor only)
     elevated_by = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='elevated_users',
-        help_text="Admin who promoted this user to Editor"
+        related_name='elevated_users'
     )
     elevated_at = models.DateTimeField(null=True, blank=True)
     elevation_notes = models.TextField(blank=True)
 
     class Meta:
-        ordering = ['-contributor_level', 'date_joined']
+        ordering = ['-date_joined']
+
+    @property
+    def full_name(self):
+        return super().get_full_name()
+    
+    def get_role_level(self):
+        """Return numeric privilege level for comparison."""
+        levels = {
+            UserRole.CONTRIBUTOR: 1,
+            UserRole.EDITOR: 2,
+            UserRole.ADMIN: 3,
+            UserRole.SUPERUSER: 4,
+        }
+        return levels.get(self.role, 0)
 
     def can_register_contributor(self):
         """Editors, Admins, and Superusers can register contributors."""
@@ -77,19 +83,12 @@ class AkitaUser(AbstractUser):
 
     def can_manage_user(self, target_user):
         """
-        Higher-level contributors can deactivate lower levels.
-        Same-level deactivation is blocked.
-        Superusers can deactivate other superusers (exception).
+        Higher roles can deactivate lower roles.
+        Same role or lower role cannot deactivate higher.
         """
-        if self.role == UserRole.SUPERUSER:
-            return True
-        if self.role == UserRole.ADMIN and target_user.role != UserRole.SUPERUSER:
-            return True
-        if self.role == UserRole.EDITOR and target_user.role == UserRole.CONTRIBUTOR:
-            return self.contributor_level > target_user.contributor_level
-        if self.role == UserRole.CONTRIBUTOR and target_user.role == UserRole.CONTRIBUTOR:
-            return self.contributor_level > target_user.contributor_level
-        return False
+        if not target_user:
+            return False
+        return self.get_role_level() > target_user.get_role_level()
 
     def can_approve_own(self, upload_owner):
         """No one can approve their own uploads."""
@@ -106,7 +105,7 @@ class SpeakerProfile(models.Model):
     full_name = models.CharField(max_length=255)
     clan_name = models.CharField(max_length=255, blank=True)
     village = models.ForeignKey(
-        Community,
+        'infrastructure_core.Community',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

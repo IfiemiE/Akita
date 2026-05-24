@@ -8,9 +8,7 @@ class Community(models.Model):
         ('ayamabele', 'Ayamabele'),
         ('kalaba', 'Kalaba'),
         ('ikarama', 'Ikarama')
-    ]
-    
-    
+    ]  
     name = models.CharField(max_length=100, unique=True, choices=ORIGINAL_COMMUNITIES, default='agbobiri')
     alternate_names = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
