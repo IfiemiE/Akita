@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.infrastructure.core.models import Community, MediaTag, Category, SiteSetting
+from .models import Community, MediaTag, Category, SiteSetting
 
 
 class CommunitySerializer(serializers.ModelSerializer):

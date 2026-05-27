@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class UserRole(models.TextChoices):
+    ANONYMOUS = 'anonymous', 'Anonymous'
     CONTRIBUTOR = 'contributor', 'Contributor'
     EDITOR = 'editor', 'Editor/Moderator'
     ADMIN = 'admin', 'Admin'
@@ -13,7 +14,7 @@ class UserRole(models.TextChoices):
 class AkitaUser(AbstractUser):
     role = models.CharField(
         max_length=20,
-        choices=UserRole.choices,
+        choices=UserRole.choices[1:], # select any on list except ANONYMOUS
         default=UserRole.CONTRIBUTOR,
         db_index=True
     )
@@ -71,15 +72,22 @@ class AkitaUser(AbstractUser):
         }
         return levels.get(self.role, 0)
 
-    def can_register_contributor(self):
-        """Editors, Admins, and Superusers can register contributors."""
+    def can_register_users(self):
+        """Editors, Admins, and Superusers can register new users."""
         return self.role in [
             UserRole.SUPERUSER, UserRole.ADMIN, UserRole.EDITOR
         ]
 
-    def can_elevate_to_editor(self):
+    def can_elevate_user(self, target_user):
         """Only Admins and Superusers can elevate to Editor."""
-        return self.role in [UserRole.SUPERUSER, UserRole.ADMIN]
+        if self.role == UserRole.SUPERUSER:
+            return True
+        if not target_user:
+            return False
+        if target_user.get_role_level() == 0: # Anonymous user
+            return False
+        # non_superusers cannot elevate a user to their own level
+        return self.get_role_level() > (target_user.get_role_level() + 1)
 
     def can_manage_user(self, target_user):
         """

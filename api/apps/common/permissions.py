@@ -95,7 +95,7 @@ class IsRegistrar(permissions.BasePermission):
         return (
             request.user and
             request.user.is_authenticated and
-            request.user.can_register_contributor()
+            request.user.can_register_users()
         )
 
 
@@ -126,17 +126,21 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         return getattr(obj, 'created_by', None) == request.user
 
 
-
 class CanManageTargetUser(permissions.BasePermission):
     """
     Object-level: can deactivate/censor target user.
-    Higher role can deactivate lower role. Same role or lower cannot.
+
+    RULES:
+    - Higher-level contributors can deactivate lower levels
+    - Same-level deactivation is BLOCKED (returns False)
+    - Superusers can deactivate other superusers (exception)
+    - Admins cannot deactivate superusers
+    - Contributors can only deactivate lower-level contributors
     """
     def has_object_permission(self, request, view, obj):
         if not request.user or not request.user.is_authenticated:
             return False
         return request.user.can_manage_user(obj)
-    
 
 
 class CannotSelfApprove(permissions.BasePermission):
