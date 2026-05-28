@@ -1,7 +1,7 @@
 
 """
 ================================================================================
-AKITA DIALECT DOCUMENTATION PLATFORM — PERMISSIONS MODULE v3.0
+AKITA DIALECT DOCUMENTATION PLATFORM — PERMISSIONS MODULE
 ================================================================================
 Date: 2026-05-20
 Governance: Peer review (triple approval), role hierarchy, community tracking,
