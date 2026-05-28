@@ -30,7 +30,7 @@ class CategoryViewSet(ReadOnlyModelViewSet):
 
 
 class SiteSettingViewSet(ModelViewSet):
-    """Admin write, others read-only."""
+    """Admin write, others below read-only."""
     queryset = SiteSetting.objects.all()
     serializer_class = SiteSettingSerializer
     permission_classes = [IsAdminOrAbove]

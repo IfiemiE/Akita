@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     
     # Third Party Apps
     'rest_framework',
+    'django-filters'
     
     # Custom Apps
     'apps.identity.users', # custom user app
