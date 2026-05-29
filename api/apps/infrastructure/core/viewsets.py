@@ -1,9 +1,12 @@
-from apps.infrastructure.core.models import Community, MediaTag, Category, SiteSetting
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from apps.infrastructure.core.serializers import (
+from rest_framework import permissions
+
+from .models import Community, MediaTag, Category, SiteSetting
+from .serializers import (
     CommunitySerializer, MediaTagSerializer, CategorySerializer, SiteSettingSerializer
 )
-from apps.common.permissions import IsAnonymousReadOnly
+from apps.common.permissions import IsAnonymousReadOnly, IsAdminOrAbove
+
 
 class CommunityViewSet(ReadOnlyModelViewSet):
     """Public read-only access to communities."""
@@ -36,4 +39,3 @@ class SiteSettingViewSet(ModelViewSet):
         if self.request.method in permissions.SAFE_METHODS:
             return [IsAnonymousReadOnly()]
         return super().get_permissions()
-
