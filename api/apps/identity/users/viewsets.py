@@ -13,7 +13,7 @@ class UserViewSet(ReadOnlyModelViewSet):
     serializer_class = AkitaUserSerializer
     permission_classes = [IsAnonymousReadOnly]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['role', 'community', 'contributor_level']
+    filterset_fields = ['role', 'community', 'first_name', 'last_name']
  
     
 class SpeakerProfileViewSet(ModelViewSet):
