@@ -5,7 +5,7 @@
 		"fields": {
 				"key": "allow_registration", 
 				"value": "true",                                            
-				description": "Toggle public self-registration on or off."
+				"description": "Toggle public self-registration on or off."
 			}
 	},
   	{
