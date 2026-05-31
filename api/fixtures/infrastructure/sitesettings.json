@@ -1,0 +1,74 @@
+[
+	{
+		"model": "core.sitesetting", 
+		"pk": 1, 
+		"fields": {
+				"key": "allow_registration", 
+				"value": "true",                                            
+				description": "Toggle public self-registration on or off."
+			}
+	},
+  	{
+  		"model": "core.sitesetting", 
+  		"pk": 2, 
+  		"fields": {
+  				"key": "contact_email",      
+  				"value": "contact@akitaheritage.org",                        
+  				"description": "Primary public contact email address."
+  			}
+  	},
+  	{
+  		"model": "core.sitesetting", 
+  		"pk": 3, 
+  		"fields": {
+  				"key": "default_language",   
+  				"value": "en",                                               
+  				"description": "ISO 639-1 language code for the default site language."
+  			}
+	},
+  	{
+  		"model": "core.sitesetting", 
+  		"pk": 4, 
+  		"fields": {
+  				"key": "items_per_page",     
+  				"value": "20",                                               
+  				"description": "Default pagination size for list views."
+  			}
+  	},
+ 	{
+ 		"model": "core.sitesetting", 
+ 		"pk": 5, 
+ 		"fields": {
+ 				"key": "maintenance_mode",   
+ 				"value": "false",                                            
+ 				"description": "Set to true to display a maintenance notice to visitors."
+ 			}
+ 	},
+  	{
+		"model": "core.sitesetting", 
+		"pk": 6, 
+		"fields": {
+				"key": "site_name",          
+				"value": "Akita Heritage Portal",                            
+				"description": "The display name of the site."
+			}
+	},
+  	{
+  		"model": "core.sitesetting", 
+  		"pk": 7, 
+  		"fields": {
+  				"key": "site_tagline",       
+  				"value": "Preserving the legacy of the Akita clan",          
+  				"description": "Short tagline shown in the site header."
+  			}
+  	},
+  	{
+  		"model": "core.sitesetting", 
+  		"pk": 8, 
+  		"fields": {
+  				"key": "social_twitter",     
+  				"value": "https://twitter.com/akitaheritage",                
+  				"description": "Twitter/X profile URL for the organisation."
+  			}
+  	}
+]

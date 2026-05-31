@@ -1,0 +1,52 @@
+[
+	{
+  		"model": "core.community", 
+  		"pk": 1, 
+  		"fields": {
+  				"name": "agbobiri",  
+  				"alternate_names": "Agbobiri Town",       
+  				"description": "One of the five original Akita clan communities located along the riverbank.", 
+  				"is_active": true
+  			}
+  	},
+  	{
+  		"model": "core.community", 
+  		"pk": 2, 
+  		"fields": {
+  				"name": "akumoni",   
+  				"alternate_names": "Akumoni Village",     
+  				"description": "A historic Akita community known for its annual cultural festival.",          
+  				"is_active": true
+  			}
+  	},
+  	{
+  		"model": "core.community", 
+  		"pk": 3, 
+  		"fields": {
+  				"name": "ayamabele", 
+  				"alternate_names": "Ayamabele Settlement",
+  				"description": "Situated in the forest belt; known for traditional crafts.",                 
+  				"is_active": true
+  			}
+  	},
+  	{
+  		"model": "core.community", 
+  		"pk": 4, 
+  		"fields": {	
+  				"name": "kalaba",    
+  				"alternate_names": "Kalaba Quarters",     
+  				"description": "Borders the main waterway and has strong fishing traditions.",              
+  				"is_active": true
+  			}
+  	},
+  	{
+  		"model": "core.community", 
+  		"pk": 5, 
+  		"fields": {
+  				"name": "ikarama",   
+  				"alternate_names": "Ikarama Central",     
+  				"description": "The administrative hub among the original five communities.",               
+  				"is_active": false
+  			}
+  	}
+]

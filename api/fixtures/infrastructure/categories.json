@@ -1,0 +1,91 @@
+[
+	{
+  		"model": "core.category", 
+  		"pk": 1, 
+  		"fields": {
+  				"name": "Heritage",          
+  				"slug": "heritage",          
+  				"parent": null, 
+  				"description": "Top-level category for all heritage content."
+			}
+	},
+  	{
+  		"model": "core.category", 
+  		"pk": 2, 
+  		"fields": {
+  				"name": "Media",             
+  				"slug": "media",             
+  				"parent": null, 
+  				"description": "Top-level category for multimedia content."
+  			}
+  	},
+  	{
+  		"model": "core.category", 
+  		"pk": 3, 
+  		"fields": {
+  				"name": "Community Affairs", 
+  				"slug": "community-affairs", 
+  				"parent": null, 
+  				"description": "News and affairs relevant to Akita communities."
+  			}
+  	},
+  	{
+  		"model": "core.category", 
+  		"pk": 4, 
+  		"fields": {
+  				"name": "Oral Traditions",   
+  				"slug": "oral-traditions",   
+  				"parent": 1,    
+  				"description": "Stories, proverbs and oral histories. Child of Heritage."
+  			}
+  	},
+  	{
+  		"model": "core.category", 
+  		"pk": 5, 
+  		"fields": {
+  				"name": "Artefacts",         
+  				"slug": "artefacts",         
+  				"parent": 1,    
+  				"description": "Physical cultural artefacts and museum items. Child of Heritage."
+  			}
+  	},
+  	{
+  		"model": "core.category", 
+  		"pk": 6, 
+  		"fields": {
+  				"name": "Photo Gallery",     
+  				"slug": "photo-gallery",     
+  				"parent": 2,    "description": "Image galleries. Child of Media."
+  			}
+  	},
+  	{
+  		"model": "core.category", 
+  		"pk": 7, 
+  		"fields": {
+  				"name": "Video Archive",     
+  				"slug": "video-archive",     
+  				"parent": 2,
+  				"description": "Video recordings and documentaries. Child of Media."
+  			}
+  	},
+  	{
+  		"model": "core.category", 
+  		"pk": 8, 
+  		"fields": {
+  				"name": "Governance",        
+  				"slug": "governance",        
+  				"parent": 3,    
+  				"description": "Community governance and leadership news. Child of Community Affairs."
+  			}
+  	},
+  	{
+  		"model": "core.category", 
+  		"pk": 9, 
+  		"fields": {
+  				"name": "Folk Tales",        
+  				"slug": "folk-tales",        
+  				"parent": 4,    
+  				"description": "Traditional folk tales. Grandchild of Heritage via Oral Traditions."
+  			}
+  	}
+]

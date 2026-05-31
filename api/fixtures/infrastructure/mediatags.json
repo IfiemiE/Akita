@@ -1,0 +1,10 @@
+[
+ 	{"model": "core.mediatag", "pk": 1, "fields": {"name": "History",     "slug": "history",     "description": "Content related to historical events and records."}},
+ 	{"model": "core.mediatag", "pk": 2, "fields": {"name": "Culture",     "slug": "culture",     "description": "Cultural practices, traditions, and heritage content."}},
+  	{"model": "core.mediatag", "pk": 3, "fields": {"name": "News",        "slug": "news",        "description": "Current news and announcements."}},
+  	{"model": "core.mediatag", "pk": 4, "fields": {"name": "Photography", "slug": "photography", "description": "Photo essays and image galleries."}},
+  	{"model": "core.mediatag", "pk": 5, "fields": {"name": "Audio",       "slug": "audio",       "description": "Oral histories, interviews, and audio recordings."}},
+  	{"model": "core.mediatag", "pk": 6, "fields": {"name": "Video",       "slug": "video",       "description": "Recorded video content and documentaries."}},
+  	{"model": "core.mediatag", "pk": 7, "fields": {"name": "Research",    "slug": "research",    "description": "Academic and scholarly research material."}},
+  	{"model": "core.mediatag", "pk": 8, "fields": {"name": "Youth",       "slug": "youth",       "description": "Content targeting or produced by young community members."}}
+]
