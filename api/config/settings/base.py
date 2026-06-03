@@ -11,29 +11,24 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import environ, os
+
+env = environ.Env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7l&zw4iecd+(-nh!fan#57b2gdh$cmre$%l8+8(02(yr-mjik+'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
 
 ALLOWED_HOSTS = []
 
 # Custom User model
 AUTH_USER_MODEL = 'identity_users.AkitaUser'
 
-# Fixture Directories and Files
-FIXTURE_DIRS = [
-    BASE_DIR/'fixtures',
-]
 
 # Application definition
 
@@ -96,12 +91,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-from .base import BASE_DIR
-import environ, os
-
-
-env = environ.Env()
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 DATABASES = {
     #'default': {
