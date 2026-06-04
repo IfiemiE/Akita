@@ -1,6 +1,6 @@
 [
 	{
-		"model": "core.sitesetting", 
+		"model": "infrastructure_core.sitesetting", 
 		"pk": 1, 
 		"fields": {
 				"key": "allow_registration", 
@@ -9,7 +9,7 @@
 			}
 	},
   	{
-  		"model": "core.sitesetting", 
+  		"model": "infrastructure_core.sitesetting", 
   		"pk": 2, 
   		"fields": {
   				"key": "contact_email",      
@@ -18,7 +18,7 @@
   			}
   	},
   	{
-  		"model": "core.sitesetting", 
+  		"model": "infrastructure_core.sitesetting", 
   		"pk": 3, 
   		"fields": {
   				"key": "default_language",   
@@ -27,7 +27,7 @@
   			}
 	},
   	{
-  		"model": "core.sitesetting", 
+  		"model": "infrastructure_core.sitesetting", 
   		"pk": 4, 
   		"fields": {
   				"key": "items_per_page",     
@@ -36,7 +36,7 @@
   			}
   	},
  	{
- 		"model": "core.sitesetting", 
+ 		"model": "infrastructure_core.sitesetting", 
  		"pk": 5, 
  		"fields": {
  				"key": "maintenance_mode",   
@@ -45,7 +45,7 @@
  			}
  	},
   	{
-		"model": "core.sitesetting", 
+		"model": "infrastructure_core.sitesetting", 
 		"pk": 6, 
 		"fields": {
 				"key": "site_name",          
@@ -54,7 +54,7 @@
 			}
 	},
   	{
-  		"model": "core.sitesetting", 
+  		"model": "infrastructure_core.sitesetting", 
   		"pk": 7, 
   		"fields": {
   				"key": "site_tagline",       
@@ -63,7 +63,7 @@
   			}
   	},
   	{
-  		"model": "core.sitesetting", 
+  		"model": "infrastructure_core.sitesetting", 
   		"pk": 8, 
   		"fields": {
   				"key": "social_twitter",     

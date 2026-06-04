@@ -20,10 +20,6 @@ env = environ.Env()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
-
 ALLOWED_HOSTS = []
 
 # Custom User model
@@ -45,7 +41,7 @@ INSTALLED_APPS = [
     'django_filters',
     
     # Custom Apps
-    'apps.identity.users', # custom user app
+    'apps.identity.users', # custom user app (to be migrated first before others!)
     'apps.infrastructure.core',
     'apps.documentation.lexicon',
     'apps.documentation.media_annotations',

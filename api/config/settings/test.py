@@ -1,6 +1,9 @@
 from .base import BASE_DIR 
 from .base import *
+from .development import SECRET_KEY as SECRET_KEY_TEST
 
+# Use same secret key as for development
+SECRET_KEY = SECRET_KEY_TEST
 
 # Use sqlite for tests
 DATABASES = {

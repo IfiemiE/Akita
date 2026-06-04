@@ -8,7 +8,7 @@ from .viewsets import (
 )
 router = DefaultRouter()
 router.register('communities', CommunityViewSet, basename='community')
-router.register('tags', MediaTagViewSet, basename='tag')
+router.register('tags', MediaTagViewSet, basename='mediatag')
 router.register('categories', CategoryViewSet, basename='category')
 router.register('settings', SiteSettingViewSet, basename='sitesetting')
 

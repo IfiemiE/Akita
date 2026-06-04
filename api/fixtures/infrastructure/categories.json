@@ -1,6 +1,6 @@
 [
 	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 1, 
   		"fields": {
   				"name": "Heritage",          
@@ -10,7 +10,7 @@
 			}
 	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 2, 
   		"fields": {
   				"name": "Media",             
@@ -20,7 +20,7 @@
   			}
   	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 3, 
   		"fields": {
   				"name": "Community Affairs", 
@@ -30,7 +30,7 @@
   			}
   	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 4, 
   		"fields": {
   				"name": "Oral Traditions",   
@@ -40,7 +40,7 @@
   			}
   	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 5, 
   		"fields": {
   				"name": "Artefacts",         
@@ -50,7 +50,7 @@
   			}
   	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 6, 
   		"fields": {
   				"name": "Photo Gallery",     
@@ -59,7 +59,7 @@
   			}
   	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 7, 
   		"fields": {
   				"name": "Video Archive",     
@@ -69,7 +69,7 @@
   			}
   	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 8, 
   		"fields": {
   				"name": "Governance",        
@@ -79,7 +79,7 @@
   			}
   	},
   	{
-  		"model": "core.category", 
+  		"model": "infrastructure_core.category", 
   		"pk": 9, 
   		"fields": {
   				"name": "Folk Tales",        

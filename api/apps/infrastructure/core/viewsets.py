@@ -12,22 +12,23 @@ class CommunityViewSet(ReadOnlyModelViewSet):
     """Public read-only access to communities."""
     queryset = Community.objects.filter(is_active=True)
     serializer_class = CommunitySerializer
-    permission_classes = [IsAnonymousReadOnly]
-
+    
 
 class MediaTagViewSet(ReadOnlyModelViewSet):
     """Public read-only access to tags."""
     queryset = MediaTag.objects.all()
     serializer_class = MediaTagSerializer
-    permission_classes = [IsAnonymousReadOnly]
-
+    
 
 class CategoryViewSet(ReadOnlyModelViewSet):
     """Public read-only access to categories."""
-    queryset = Category.objects.filter(parent__isnull=True)
     serializer_class = CategorySerializer
-    permission_classes = [IsAnonymousReadOnly]
 
+    def get_queryset(self):
+        if self.action == 'list':
+            return Category.objects.filter(parent__isnull=True)
+        return Category.objects.all()
+    
 
 class SiteSettingViewSet(ModelViewSet):
     """Admin write, others read-only."""

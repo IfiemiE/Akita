@@ -1,6 +1,6 @@
 [
 	{
-  		"model": "core.community", 
+  		"model": "infrastructure_core.community", 
   		"pk": 1, 
   		"fields": {
   				"name": "agbobiri",  
@@ -10,7 +10,7 @@
   			}
   	},
   	{
-  		"model": "core.community", 
+  		"model": "infrastructure_core.community", 
   		"pk": 2, 
   		"fields": {
   				"name": "akumoni",   
@@ -20,7 +20,7 @@
   			}
   	},
   	{
-  		"model": "core.community", 
+  		"model": "infrastructure_core.community", 
   		"pk": 3, 
   		"fields": {
   				"name": "ayamabele", 
@@ -30,7 +30,7 @@
   			}
   	},
   	{
-  		"model": "core.community", 
+  		"model": "infrastructure_core.community", 
   		"pk": 4, 
   		"fields": {	
   				"name": "kalaba",    
@@ -40,7 +40,7 @@
   			}
   	},
   	{
-  		"model": "core.community", 
+  		"model": "infrastructure_core.community", 
   		"pk": 5, 
   		"fields": {
   				"name": "ikarama",   

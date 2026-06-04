@@ -1,20 +1,47 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-#from apps.infrastructure.core.models import Community
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class UserRole(models.TextChoices):
-    ANONYMOUS = 'anonymous', 'Anonymous'
     CONTRIBUTOR = 'contributor', 'Contributor'
     EDITOR = 'editor', 'Editor/Moderator'
     ADMIN = 'admin', 'Admin'
     SUPERUSER = 'superuser', 'Superuser'
 
 
+class AkitaUserManager(BaseUserManager):
+    def create_user(self, username, email=None, password=None, role=None, **extra_fields):
+        if not username:
+            raise ValueError('The given username must be set')
+        
+        email = self.normalize_email(email) if email else None
+        username = self.model.normalize_username(username)
+        if role is None:
+            role = UserRole.CONTRIBUTOR
+        
+        user = self.model(username=username, email=email, role=role, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        return self.create_user(
+            username, email, password,
+            role=UserRole.SUPERUSER,
+            **extra_fields
+        )
+
+
 class AkitaUser(AbstractUser):
     role = models.CharField(
         max_length=20,
-        choices=UserRole.choices[1:], # select any on list except ANONYMOUS
+        choices=UserRole.choices,
         default=UserRole.CONTRIBUTOR,
         db_index=True
     )
@@ -54,7 +81,7 @@ class AkitaUser(AbstractUser):
     )
     elevated_at = models.DateTimeField(null=True, blank=True)
     elevation_notes = models.TextField(blank=True)
-
+    objects = AkitaUserManager()
     class Meta:
         ordering = ['-date_joined']
 
