@@ -5,7 +5,7 @@ from .viewsets import (
     SpeakerProfileViewSet,
 )
 router = DefaultRouter()
-router.register('enrolled', UserViewSet, basename='user')
+router.register('contributors', UserViewSet, basename='user')
 router.register('speakers', SpeakerProfileViewSet, basename='speaker')
 
 urlpatterns = router.urls

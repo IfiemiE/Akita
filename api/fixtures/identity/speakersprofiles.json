@@ -1,0 +1,132 @@
+[
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 1,
+    "fields": {
+      "full_name": "Nwachukwu Okafor",
+      "clan_name": "Akita-Eze",
+      "village": 1,
+      "birth_year": 1942,
+      "is_living": false,
+      "user_account": null,
+      "documented_by": 4
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 2,
+    "fields": {
+      "full_name": "Adaeze Nwosu",
+      "clan_name": "Akita-Nwosu",
+      "village": 1,
+      "birth_year": 1958,
+      "is_living": true,
+      "user_account": null,
+      "documented_by": 4
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 3,
+    "fields": {
+      "full_name": "Obinna Obiora",
+      "clan_name": "Akita-Obiora",
+      "village": 2,
+      "birth_year": 1965,
+      "is_living": true,
+      "user_account": null,
+      "documented_by": 5
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 4,
+    "fields": {
+      "full_name": "Femi Adeyemi",
+      "clan_name": "Akita-Ade",
+      "village": 1,
+      "birth_year": 1990,
+      "is_living": true,
+      "user_account": 6,
+      "documented_by": 4
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 5,
+    "fields": {
+      "full_name": "Efua Mensah",
+      "clan_name": "Akita-Mensah",
+      "village": 2,
+      "birth_year": 1985,
+      "is_living": true,
+      "user_account": 5,
+      "documented_by": 3
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 6,
+    "fields": {
+      "full_name": "Hamid Suleiman",
+      "clan_name": "Akita-Sulei",
+      "village": 4,
+      "birth_year": 1972,
+      "is_living": true,
+      "user_account": 8,
+      "documented_by": 2
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 7,
+    "fields": {
+      "full_name": "Chidinma Okonkwo",
+      "clan_name": "",
+      "village": null,
+      "birth_year": null,
+      "is_living": true,
+      "user_account": null,
+      "documented_by": 5
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 8,
+    "fields": {
+      "full_name": "Emeka Eze",
+      "clan_name": "Akita-Eze",
+      "village": 1,
+      "birth_year": 1935,
+      "is_living": false,
+      "user_account": null,
+      "documented_by": 4
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 9,
+    "fields": {
+      "full_name": "Kelechi Agu",
+      "clan_name": "Akita-Agu",
+      "village": 4,
+      "birth_year": 2001,
+      "is_living": true,
+      "user_account": null,
+      "documented_by": 2
+    }
+  },
+  {
+    "model": "identity_users.speakerprofile",
+    "pk": 10,
+    "fields": {
+      "full_name": "Ngozi Osei",
+      "clan_name": "",
+      "village": 2,
+      "birth_year": 1950,
+      "is_living": false,
+      "user_account": null,
+      "documented_by": 5
+    }
+  }
+]

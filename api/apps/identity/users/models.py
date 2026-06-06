@@ -58,7 +58,7 @@ class AkitaUser(AbstractUser):
         null=True,
         blank=True,
         related_name='registered_users',
-        help_text="Admin or Editor who physically identified this contributor"
+        help_text="Admin or Editor who physically identified/registered this contributor"
     )
     registration_date = models.DateTimeField(auto_now_add=True)
     registration_notes = models.TextField(
@@ -81,6 +81,7 @@ class AkitaUser(AbstractUser):
     )
     elevated_at = models.DateTimeField(null=True, blank=True)
     elevation_notes = models.TextField(blank=True)
+    email = models.EmailField(null=True, blank=True)
     objects = AkitaUserManager()
     class Meta:
         ordering = ['-date_joined']
@@ -107,10 +108,10 @@ class AkitaUser(AbstractUser):
 
     def can_elevate_user(self, target_user):
         """Only Admins and Superusers can elevate to Editor."""
-        if self.role == UserRole.SUPERUSER:
-            return True
         if not target_user:
             return False
+        if self.role == UserRole.SUPERUSER:
+            return True
         if target_user.get_role_level() == 0: # Anonymous user
             return False
         # non_superusers cannot elevate a user to their own level
