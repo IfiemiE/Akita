@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework import permissions
 
-from .models import Community, MediaTag, Category, SiteSetting
+from .models import Community, AkitaCommunity, MediaTag, Category, SiteSetting
 from .serializers import (
     CommunitySerializer, MediaTagSerializer, CategorySerializer, SiteSettingSerializer
 )
@@ -10,7 +10,12 @@ from apps.common.permissions import IsAnonymousReadOnly, IsAdminOrAbove
 
 class CommunityViewSet(ReadOnlyModelViewSet):
     """Public read-only access to communities."""
-    queryset = Community.objects.filter(is_active=True)
+    queryset = Community.objects.all()
+    serializer_class = CommunitySerializer
+    
+class AkitaCommunityViewSet(ReadOnlyModelViewSet):
+    """Public read-only access to communities."""
+    queryset = AkitaCommunity.objects.filter(is_active=True)
     serializer_class = CommunitySerializer
     
 

@@ -46,7 +46,7 @@ class AkitaUser(AbstractUser):
         db_index=True
     )
     community = models.ForeignKey(
-        'infrastructure_core.Community',
+        'infrastructure_core.AkitaCommunity',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -139,28 +139,35 @@ class SpeakerProfile(models.Model):
     Physical speakers being documented. May or may not have a user account.
     """
     full_name = models.CharField(max_length=255)
-    clan_name = models.CharField(max_length=255, blank=True)
-    village = models.ForeignKey(
+    community = models.ForeignKey(
         'infrastructure_core.Community',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='speakers'
+        related_name='speakers',
+        help_text="One of the five Akita clan communities, if the speaker is an original community member."
     )
     birth_year = models.PositiveSmallIntegerField(null=True, blank=True)
     is_living = models.BooleanField(default=True)
-    user_account = models.OneToOneField(
+    community_note = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="For speakers from outside the five Akita communities — specify their community of origin here (e.g. 'Peremabiri', 'Ekeremor')."
+    )
+    speaker_user_account = models.OneToOneField(
         AkitaUser,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='speaker_profile'
+        related_name='speaker_profile',
+        help_text="For speakers who are also registered users"
     )
     documented_by = models.ForeignKey(
         AkitaUser,
         on_delete=models.SET_NULL,
         null=True,
-        related_name='documented_speakers'
+        related_name='documented_speakers',
+        help_text="The contributor: Interviewer/Narrator"
     )
 
     class Meta:
@@ -168,4 +175,3 @@ class SpeakerProfile(models.Model):
 
     def __str__(self):
         return self.full_name
-

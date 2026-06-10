@@ -6,10 +6,16 @@ from apps.common.permissions import get_user_role_level
 
 
 class AkitaUserSerializer(serializers.ModelSerializer):
-    community_name = serializers.CharField(source='community.name', read_only=True)
+    community_name = serializers.SerializerMethodField()
     registered_by_name = serializers.CharField(source='registered_by.username', read_only=True)
-    elevated_by_name = serializers.CharField(source='elevated_by.username', read_only=True)
+    elevated_by_name = serializers.SerializerMethodField()
     role_level = serializers.IntegerField(source='get_role_level', read_only=True)
+    
+    def get_community_name(self, obj):
+        return obj.community.name if obj.community_id else None
+
+    def get_elevated_by_name(self, obj):
+        return obj.elevated_by.username if obj.elevated_by_id else None
 
     class Meta:
         model = AkitaUser
@@ -72,17 +78,23 @@ class ContributorRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        user = AkitaUser.objects.create_user(**validated_data)
+        user = DialectUser.objects.create_user(**validated_data)
         user.registered_by = self.context['request'].user
         user.save()
         return user
 
 
 class UserManagementSerializer(serializers.ModelSerializer):
-    community_name = serializers.CharField(source='community.name', read_only=True)
+    community_name = serializers.SerializerMethodField()
     registered_by_name = serializers.CharField(source='registered_by.username', read_only=True)
-    elevated_by_name = serializers.CharField(source='elevated_by.username', read_only=True)
+    elevated_by_name = serializers.SerializerMethodField()
     role_level = serializers.IntegerField(source='get_role_level', read_only=True)
+    
+    def get_community_name(self, obj):
+        return obj.community.name if obj.community_id else None
+
+    def get_elevated_by_name(self, obj):
+        return obj.elevated_by.username if obj.elevated_by_id else None
 
     class Meta:
         model = AkitaUser
@@ -130,7 +142,7 @@ class UserElevationSerializer(serializers.Serializer):
         return value
     
     def validate_new_role(self, value): 
-        new_role_user = self._new_role_user
+        #new_role_user = self._new_role_user
         if  get_user_role_level(self._new_role_user.role) <= get_user_role_level(self.new_role):
             raise serializers.ValidationError('assigned new role should be higher than current role')
         return value
@@ -146,15 +158,22 @@ class UserElevationSerializer(serializers.Serializer):
 
 
 class SpeakerProfileSerializer(serializers.ModelSerializer):
-    village_name = serializers.CharField(source='village.name', read_only=True)
+    community_name = serializers.CharField(source='community.name', read_only=True)
     user_account_username = serializers.CharField(source='user_account.username', read_only=True)
+    documented_by = serializers.PrimaryKeyRelatedField(
+        queryset=AkitaUser.objects.all(),
+        required=True,
+        allow_null=False,
+        help_text="Required. User responsible for this documentation."
+    )
     documented_by_name = serializers.CharField(source='documented_by.username', read_only=True)
-
     class Meta:
         model = SpeakerProfile
         fields = [
-            'id', 'full_name', 'clan_name', 'village', 'village_name',
+            'id', 'full_name', 'community', 'community_name',
             'birth_year', 'is_living',
             'user_account', 'user_account_username',
             'documented_by', 'documented_by_name'
         ]
+    def perform_create(self, serializer):
+        serializer.save(documented_by=self.request.user)

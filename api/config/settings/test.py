@@ -18,5 +18,11 @@ FIXTURE_DIRS = [
     BASE_DIR/ 'fixtures',
 ]
 
+# Rest framework settings
+REST_FRAMEWORK = {
+    **REST_FRAMEWORK, # inherits all REST_FRAMEWORK key-value configs
+    'PAGE_SIZE': 5, # overrides the PAGE_SIZE
+}
+
 # Overwrite DEBUG
 DEBUG = True

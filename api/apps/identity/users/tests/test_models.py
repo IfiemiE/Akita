@@ -9,7 +9,7 @@ Fixture load order matters:
 
 FIXTURE_DIRS in config/settings/test.py must include both:
     - apps/infrastructure/core/fixtures/   (communities.json lives here)
-    - apps/identity/users/fixtures/        (akitauser.json, speakerprofile.json)
+    
     
 Run
 ---
