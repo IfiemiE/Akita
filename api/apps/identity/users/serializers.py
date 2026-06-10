@@ -78,7 +78,7 @@ class ContributorRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        user = DialectUser.objects.create_user(**validated_data)
+        user = AkitaUser.objects.create_user(**validated_data)
         user.registered_by = self.context['request'].user
         user.save()
         return user
