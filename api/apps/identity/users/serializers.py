@@ -159,7 +159,7 @@ class UserElevationSerializer(serializers.Serializer):
 
 class SpeakerProfileSerializer(serializers.ModelSerializer):
     community_name = serializers.CharField(source='community.name', read_only=True)
-    user_account_username = serializers.CharField(source='user_account.username', read_only=True)
+    user_account_username = serializers.CharField(source='speaker_user_account.username', read_only=True)
     documented_by = serializers.PrimaryKeyRelatedField(
         queryset=AkitaUser.objects.all(),
         required=True,
