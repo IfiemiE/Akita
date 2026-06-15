@@ -6,12 +6,12 @@ from .models import(
 
 
 @admin.register(Language)
-class CommunityAdmin(admin.ModelAdmin):
+class LanguageAdmin(admin.ModelAdmin):
     list_display = ['name', 'iso_code', 'is_target']
     
 @admin.register(Dialect)
-class CommunityAdmin(admin.ModelAdmin):
-    list_display = ['name', 'iso_code', 'is_target']
+class DialectAdmin(admin.ModelAdmin):
+    list_display = ['name', 'iso_code', 'language', 'is_target']
 
 @admin.register(Community)
 class CommunityAdmin(admin.ModelAdmin):
