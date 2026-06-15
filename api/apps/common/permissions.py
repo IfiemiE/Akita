@@ -264,7 +264,6 @@ def get_user_role_level(role):
     Higher number = more privilege.
     """
     levels = {
-        UserRole.ANONYMOUS: 0,
         UserRole.CONTRIBUTOR: 1,
         UserRole.EDITOR: 2,
         UserRole.ADMIN: 3,

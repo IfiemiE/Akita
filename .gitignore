@@ -1,5 +1,6 @@
 .vscode/
 .env
 __pycache__/
-db.sqlite3
+test_db.sqlite3
 .project_tree.md
+.venv

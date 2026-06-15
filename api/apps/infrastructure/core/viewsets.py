@@ -1,12 +1,23 @@
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework import permissions
 
-from .models import Community, AkitaCommunity, MediaTag, Category, SiteSetting
+from .models import Language, Dialect, Community, AkitaCommunity, MediaTag, Category, SiteSetting
 from .serializers import (
-    CommunitySerializer, MediaTagSerializer, CategorySerializer, SiteSettingSerializer
+    CommunitySerializer, MediaTagSerializer, CategorySerializer, SiteSettingSerializer,
+    AkitaCommunitySerializer, LanguageSerializer, DialectSerializer,
 )
 from apps.common.permissions import IsAnonymousReadOnly, IsAdminOrAbove
 
+
+class LanguageViewSet(ReadOnlyModelViewSet):
+    """Public read-only access to communities."""
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer
+    
+class DialectViewSet(ReadOnlyModelViewSet):
+    """Public read-only access to communities."""
+    queryset = Dialect.objects.all()
+    serializer_class = DialectSerializer
 
 class CommunityViewSet(ReadOnlyModelViewSet):
     """Public read-only access to communities."""
@@ -16,7 +27,7 @@ class CommunityViewSet(ReadOnlyModelViewSet):
 class AkitaCommunityViewSet(ReadOnlyModelViewSet):
     """Public read-only access to communities."""
     queryset = AkitaCommunity.objects.filter(is_active=True)
-    serializer_class = CommunitySerializer
+    serializer_class = AkitaCommunitySerializer
     
 
 class MediaTagViewSet(ReadOnlyModelViewSet):

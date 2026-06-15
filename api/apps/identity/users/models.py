@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 class UserRole(models.TextChoices):
     CONTRIBUTOR = 'contributor', 'Contributor'
@@ -172,6 +174,23 @@ class SpeakerProfile(models.Model):
 
     class Meta:
         ordering = ['full_name']
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(community__isnull=True) |
+                    models.Q(community_note='')
+                ),
+                name='speaker_community_mutex',
+            )
+        ]
+        
+
+    def clean(self):
+        if self.community_id and self.community_note:
+            raise ValidationError(
+                "A speaker may have either a community FK or a community_note, "
+                "not both."
+            )
 
     def __str__(self):
         return self.full_name
