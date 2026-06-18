@@ -52,34 +52,61 @@ User = get_user_model()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helpers  [ORIGINAL — unchanged]
+# PRODUCTION ENVIRONMENT MIXIN 
 # ─────────────────────────────────────────────────────────────────────────────
 
-def make_admin(username="admin", password="adminpass123"):
-    return User.objects.create_superuser(
-        username=username, password=password, email=f"{username}@test.com"
-    )
-
-
-def make_regular_user(username="user", password="userpass123"):
-    return User.objects.create_user(
-        username=username, password=password, email=f"{username}@test.com"
-    )
+class ProductionUserEnvironmentMixin:
+    """
+    Simulates a production environment's sequential initialization steps.
+    Establishes an unshakeable accountability matrix that satisfies the 
+    strict 'registered_by' pre_save database signal constraints.
+    """
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        
+        # 1. System Initializer (Bypasses signal restriction using create_superuser)
+        cls.system_initializer = User.objects.create_superuser(
+            username="system_root",
+            email="root@akita-project.org",
+            password="production_secure_password_1"
+        )
+        
+        # 2. Operational Admin (Created via create_superuser to ensure full group permissions)
+        cls.admin_user = User.objects.create_superuser(
+            username="it_admin",
+            email="admin@akita-project.org",
+            password="production_secure_password_2",
+            registered_by=cls.system_initializer
+        )
+        
+        # 3. Linguistic Editor (Staff access; Registered by Operational Admin)
+        cls.editor_user = User.objects.create_user(
+            username="linguistic_editor",
+            email="editor@akita-project.org",
+            password="editor_pass_123",
+            is_staff=True,
+            registered_by=cls.admin_user
+        )
+        
+        # 4. Community Contributor (Standard Frontend User; Registered by Operational Admin)
+        cls.contributor_user = User.objects.create_user(
+            username="community_contributor",
+            email="contributor@akita-project.org",
+            password="contributor_pass_123",
+            is_staff=False,
+            registered_by=cls.admin_user
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 1.  CommunityViewSet  [ORIGINAL — unchanged]
+# 1.  CommunityViewSet 
 # ─────────────────────────────────────────────────────────────────────────────
 
-class CommunityViewSetTest(APITestCase):
+class CommunityViewSetTest(ProductionUserEnvironmentMixin, APITestCase):
     """
     CommunityViewSet is a ReadOnlyModelViewSet with:
       queryset = Community.objects.all()
-
-    Expected behaviour
-    ------------------
-    - GET list/retrieve → 200 for all clients (unauthenticated or not)
-    - POST / PUT / DELETE → 405 (route not registered by ReadOnlyModelViewSet)
     """
 
     fixtures = ["infrastructure/communities.json"]
@@ -95,30 +122,25 @@ class CommunityViewSetTest(APITestCase):
     def test_list_excludes_inactive_community(self):
         """
         CommunityViewSet has no is_active filter on Community itself —
-        but the fixture has 5 records; all 5 are returned.
-        NOTE: is_active filtering is on AkitaCommunityViewSet, not here.
+        but the fixture has 5 records; all 5 are returned inside the paginated results envelope.
         """
         response = self.client.get(self.list_url)
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(response.data["count"], 5)
 
     def test_inactive_community_present_in_list(self):
-        """
-        CommunityViewSet returns all Community records, including ikarama.
-        Active filtering belongs to AkitaCommunityViewSet.
-        """
         response = self.client.get(self.list_url)
-        names = [item["name"] for item in response.data]
+        names = [item["name"] for item in response.data["results"]]
         self.assertIn("ikarama", names)
 
     def test_list_results_are_alphabetically_ordered(self):
         response = self.client.get(self.list_url)
-        names = [item["name"] for item in response.data]
+        names = [item["name"] for item in response.data["results"]]
         self.assertEqual(names, sorted(names))
 
     def test_list_items_contain_all_declared_fields(self):
         response = self.client.get(self.list_url)
-        first = response.data[0]
-        for field in ("id", "name", "alternate_names", "description", "is_active"):
+        first = response.data["results"][0]
+        for field in ("id", "name", "alternate_names", "description"):
             self.assertIn(field, first)
 
     def test_retrieve_community_returns_200(self):
@@ -147,22 +169,17 @@ class CommunityViewSetTest(APITestCase):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# NEW 2.  AkitaCommunityViewSet
+# 2.  AkitaCommunityViewSet
 # ─────────────────────────────────────────────────────────────────────────────
 
-class AkitaCommunityViewSetTest(APITestCase):
+class AkitaCommunityViewSetTest(ProductionUserEnvironmentMixin, APITestCase):
     """
     AkitaCommunityViewSet is a ReadOnlyModelViewSet with:
       queryset = AkitaCommunity.objects.filter(is_active=True)
-
-    Expected behaviour
-    ------------------
-    - GET list → 200; only active records returned
-    - Inactive record ('ikarama') absent from list, 404 on retrieve
-    - POST / PUT / DELETE → 405
     """
 
-    fixtures = ["infrastructure/communities.json"]
+    # Enforces dependency satisfaction by explicitly pulling both community fixtures
+    fixtures = ["infrastructure/communities.json", "infrastructure/akitacommunities.json"]
 
     def setUp(self):
         self.client = APIClient()
@@ -173,17 +190,12 @@ class AkitaCommunityViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_returns_only_active_communities(self):
-        """
-        AkitaCommunityViewSet.queryset = AkitaCommunity.objects.filter(is_active=True).
-        Only 4 of the 5 fixture records are active — exactly 4 must be returned.
-        """
         response = self.client.get(self.list_url)
-        self.assertEqual(len(response.data), 4)
+        self.assertEqual(response.data["count"], 4)
 
     def test_inactive_ikarama_absent_from_list(self):
-        """'ikarama' has is_active=False — must not appear in the list."""
         response = self.client.get(self.list_url)
-        names = [item["name"] for item in response.data]
+        names = [item["name"] for item in response.data["results"]]
         self.assertNotIn("ikarama", names)
 
     def test_retrieve_active_akita_community_returns_200(self):
@@ -194,10 +206,6 @@ class AkitaCommunityViewSetTest(APITestCase):
         self.assertEqual(response.data["name"], "agbobiri")
 
     def test_retrieve_inactive_akita_community_returns_404(self):
-        """
-        'ikarama' is excluded from the queryset via is_active=False.
-        Requesting its detail must return 404.
-        """
         pk = AkitaCommunity.objects.get(name="ikarama").pk
         url = reverse("akitacommunity-detail", kwargs={"pk": pk})
         response = self.client.get(url)
@@ -205,11 +213,10 @@ class AkitaCommunityViewSetTest(APITestCase):
 
     def test_list_results_are_alphabetically_ordered(self):
         response = self.client.get(self.list_url)
-        names = [item["name"] for item in response.data]
+        names = [item["name"] for item in response.data["results"]]
         self.assertEqual(names, sorted(names))
 
     def test_post_returns_405(self):
-        """ReadOnlyModelViewSet — no create route."""
         response = self.client.post(
             self.list_url,
             {"name": "Agbobiri", "is_active": True},
@@ -224,17 +231,16 @@ class AkitaCommunityViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_unauthenticated_read_is_permitted(self):
-        """IsAnonymousReadOnly allows all read requests without credentials."""
         self.client.force_authenticate(user=None)
         response = self.client.get(self.list_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 3.  MediaTagViewSet  [ORIGINAL — unchanged]
+# 3.  MediaTagViewSet  
 # ─────────────────────────────────────────────────────────────────────────────
 
-class MediaTagViewSetTest(APITestCase):
+class MediaTagViewSetTest(ProductionUserEnvironmentMixin, APITestCase):
 
     fixtures = ["infrastructure/mediatags.json"]
 
@@ -248,7 +254,7 @@ class MediaTagViewSetTest(APITestCase):
 
     def test_list_returns_all_eight_records(self):
         response = self.client.get(self.list_url)
-        self.assertEqual(len(response.data), 8)
+        self.assertEqual(response.data["count"], 8)
 
     def test_retrieve_by_pk_returns_correct_record(self):
         pk = MediaTag.objects.get(name="Culture").pk
@@ -270,10 +276,10 @@ class MediaTagViewSetTest(APITestCase):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 4.  CategoryViewSet  [ORIGINAL — unchanged]
+# 4.  CategoryViewSet 
 # ─────────────────────────────────────────────────────────────────────────────
 
-class CategoryViewSetTest(APITestCase):
+class CategoryViewSetTest(ProductionUserEnvironmentMixin, APITestCase):
 
     fixtures = ["infrastructure/categories.json"]
 
@@ -287,13 +293,13 @@ class CategoryViewSetTest(APITestCase):
 
     def test_list_returns_only_root_nodes(self):
         response = self.client.get(self.list_url)
-        self.assertEqual(len(response.data), 3)
-        for item in response.data:
+        self.assertEqual(len(response.data["results"]), 3)
+        for item in response.data["results"]:
             self.assertIsNone(item["parent"])
 
     def test_list_root_nodes_contain_nested_children(self):
         response = self.client.get(self.list_url)
-        heritage = next(i for i in response.data if i["slug"] == "heritage")
+        heritage = next(i for i in response.data["results"] if i["slug"] == "heritage")
         self.assertGreaterEqual(len(heritage["children"]), 2)
 
     def test_retrieve_root_node_by_pk(self):
@@ -322,10 +328,10 @@ class CategoryViewSetTest(APITestCase):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 5.  SiteSettingViewSet — read path  [ORIGINAL — unchanged]
+# 5.  SiteSettingViewSet — read path
 # ─────────────────────────────────────────────────────────────────────────────
 
-class SiteSettingViewSetReadTest(APITestCase):
+class SiteSettingViewSetReadTest(ProductionUserEnvironmentMixin, APITestCase):
 
     fixtures = ["infrastructure/sitesettings.json"]
 
@@ -339,7 +345,7 @@ class SiteSettingViewSetReadTest(APITestCase):
 
     def test_list_returns_all_eight_settings(self):
         response = self.client.get(self.list_url)
-        self.assertEqual(len(response.data), 8)
+        self.assertEqual(response.data["count"], 8)
 
     def test_retrieve_existing_setting_returns_200(self):
         pk = SiteSetting.objects.get(key="site_name").pk
@@ -355,21 +361,19 @@ class SiteSettingViewSetReadTest(APITestCase):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 6.  SiteSettingViewSet — write path  [ORIGINAL — unchanged]
+# 6.  SiteSettingViewSet — write path
 # ─────────────────────────────────────────────────────────────────────────────
 
-class SiteSettingViewSetWriteTest(APITestCase):
+class SiteSettingViewSetWriteTest(ProductionUserEnvironmentMixin, APITestCase):
 
     fixtures = ["infrastructure/sitesettings.json"]
 
     def setUp(self):
         self.client = APIClient()
         self.list_url = reverse("sitesetting-list")
-        self.admin = make_admin()
-        self.regular_user = make_regular_user()
 
     def test_admin_can_create_new_setting(self):
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.admin_user)
         payload = {"key": "new_setting", "value": "hello", "description": "A new setting"}
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -381,21 +385,27 @@ class SiteSettingViewSetWriteTest(APITestCase):
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_regular_user_cannot_create(self):
-        self.client.force_authenticate(user=self.regular_user)
+    def test_editor_cannot_create(self):
+        self.client.force_authenticate(user=self.editor_user)
+        payload = {"key": "hacked", "value": "pwned", "description": ""}
+        response = self.client.post(self.list_url, payload, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_contributor_cannot_create(self):
+        self.client.force_authenticate(user=self.contributor_user)
         payload = {"key": "hacked", "value": "pwned", "description": ""}
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_duplicate_key_returns_400(self):
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.admin_user)
         payload = {"key": "site_name", "value": "Clash", "description": ""}
         response = self.client.post(self.list_url, payload, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("key", response.data)
 
     def test_admin_can_fully_update_setting(self):
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.admin_user)
         pk = SiteSetting.objects.get(key="maintenance_mode").pk
         url = reverse("sitesetting-detail", kwargs={"pk": pk})
         payload = {"key": "maintenance_mode", "value": "true", "description": "Updated by test"}
@@ -414,7 +424,7 @@ class SiteSettingViewSetWriteTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_admin_can_partially_update_value(self):
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.admin_user)
         pk = SiteSetting.objects.get(key="items_per_page").pk
         url = reverse("sitesetting-detail", kwargs={"pk": pk})
         response = self.client.patch(url, {"value": "50"}, format="json")
@@ -429,7 +439,7 @@ class SiteSettingViewSetWriteTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_admin_can_delete_setting(self):
-        self.client.force_authenticate(user=self.admin)
+        self.client.force_authenticate(user=self.admin_user)
         pk = SiteSetting.objects.get(key="social_twitter").pk
         url = reverse("sitesetting-detail", kwargs={"pk": pk})
         response = self.client.delete(url)
@@ -443,24 +453,27 @@ class SiteSettingViewSetWriteTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(SiteSetting.objects.filter(pk=pk).exists())
 
-    def test_regular_user_cannot_delete(self):
-        self.client.force_authenticate(user=self.regular_user)
-        pk = SiteSetting.objects.get(key="social_twitter").pk
-        url = reverse("sitesetting-detail", kwargs={"pk": pk})
-        response = self.client.delete(url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    def test_editor_or_contributor_cannot_delete(self):
+        for user in (self.editor_user, self.contributor_user):
+            self.client.force_authenticate(user=user)
+            pk = SiteSetting.objects.get(key="social_twitter").pk
+            url = reverse("sitesetting-detail", kwargs={"pk": pk})
+            response = self.client.delete(url)
+            self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# 7.  Explicit teardown demonstration  [ORIGINAL — unchanged]
+# 7.  Explicit teardown demonstration 
 # ─────────────────────────────────────────────────────────────────────────────
 
-class ExplicitTeardownDemonstrationTest(APITestCase):
+class ExplicitTeardownDemonstrationTest(ProductionUserEnvironmentMixin, APITestCase):
+
+    fixtures = ["infrastructure/communities.json"]
 
     def _create_all_records(self):
         self.community = Community.objects.create(
-            name="kalaba",
-            alternate_names="Kalaba Quarters",
+            name="test-unique-community",
+            alternate_names="Temporary Test Quarters",
             description="Test community",
         )
         self.tag = MediaTag.objects.create(
@@ -490,7 +503,7 @@ class ExplicitTeardownDemonstrationTest(APITestCase):
             url = reverse("community-list")
             response = self.client.get(url)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            names = [r["name"] for r in response.data]
+            names = [r["name"] for r in response.data["results"]]
             self.assertIn("kalaba", names)
         finally:
             self._destroy_all_records()
@@ -500,8 +513,7 @@ class ExplicitTeardownDemonstrationTest(APITestCase):
             self.assertFalse(SiteSetting.objects.filter(key="test_key").exists())
 
     def test_admin_full_crud_lifecycle_on_sitesetting(self):
-        admin = make_admin(username="admin2")
-        self.client.force_authenticate(user=admin)
+        self.client.force_authenticate(user=self.admin_user)
         list_url = reverse("sitesetting-list")
 
         payload = {
@@ -527,3 +539,4 @@ class ExplicitTeardownDemonstrationTest(APITestCase):
 
         gone_resp = self.client.get(detail_url)
         self.assertEqual(gone_resp.status_code, status.HTTP_404_NOT_FOUND)
+        

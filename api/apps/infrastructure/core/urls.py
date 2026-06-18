@@ -16,6 +16,6 @@ router.register('categories', CategoryViewSet, basename='category')
 router.register('settings', SiteSettingViewSet, basename='sitesetting')
 router.register('languages', LanguageViewSet, basename='language')
 router.register('dialects', DialectViewSet, basename='dialect')
-router.register('akita_communities', AkitaCommunityViewSet, basename='akita_community')
+router.register('akitacommunities', AkitaCommunityViewSet, basename='akitacommunity')
 
 urlpatterns = router.urls

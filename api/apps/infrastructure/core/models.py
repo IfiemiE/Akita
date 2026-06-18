@@ -5,7 +5,7 @@ from apps.common.constants import AKITA_COMMUNITIES
 
 class Language(models.Model):
     """The Language as a family of variant dialects"""  
-    name = models.CharField(max_length=100, default='Ijaw', unique=True)
+    name = models.CharField(max_length=100, unique=True, null=False)
     # set ISO 693-3 Language Standard Codes
     iso_code = models.CharField(max_length=10, blank=True, null=True)
     is_target = models.BooleanField(default=True)
@@ -37,24 +37,17 @@ class Language(models.Model):
 
 
 class Dialect(models.Model):
-    """The Dialect variant of the Language."""   
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='dialects')
-    name = models.CharField(max_length=100, default='Akita', unique=True)
+    """The Dialect variant of the Language."""
+    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='dialects', null=False, blank=False)
+    name = models.CharField(max_length=100, default='Akita')
     # set ISO 693-3 Language Standard Codes (for Ijaw, it is dialect-based)
     iso_code = models.CharField(max_length=10, blank=True, null=True, default='okd')
     is_target = models.BooleanField(default=True)
     
     def clean(self):
-        # check if is_target is set True more than once
-        if self.is_target:
-            existing = Dialect.objects.filter(is_target=True).exclude(pk=self.pk)
-            if existing.exists():
-                raise ValidationError(
-                    'Another dialect has been set as the target/application dialect'
-                )
         # check if iso-code is set for language already
-        if self.language.iso_code and self.iso_code:
-            if self.language.iso_code != self.iso_code:
+        if self.language and self.language.iso_code and self.iso_code:
+            if str(self.language.iso_code).strip() != str(self.iso_code).strip():
                 raise ValidationError(
                     'if iso-code is set for language and for dialect, then they must be the same'
                 )
