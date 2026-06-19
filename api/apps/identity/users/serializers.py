@@ -20,7 +20,7 @@ class AkitaUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AkitaUser
         fields = [
-            'id', 'username', 'first_name', 'last_name', 'email',
+            'id', 'username', 'first_name', 'slug', 'last_name', 'email',
             'role', 'role_level', 'community', 'community_name',
             'registered_by', 'registered_by_name', 'registration_date',
             'registration_notes', 'speaks_for_self',
@@ -28,7 +28,7 @@ class AkitaUserSerializer(serializers.ModelSerializer):
             'date_joined', 'is_active'
         ]
         read_only_fields = [
-            'role', 'role_level', 'registered_by', 'registration_date',
+            'role', 'slug', 'role_level', 'registered_by', 'registration_date',
             'elevated_by', 'elevated_at', 'date_joined'
         ]
 
@@ -158,22 +158,27 @@ class UserElevationSerializer(serializers.Serializer):
 
 
 class SpeakerProfileSerializer(serializers.ModelSerializer):
-    community_name = serializers.CharField(source='community.name', read_only=True)
-    user_account_username = serializers.CharField(source='speaker_user_account.username', read_only=True)
+    community_name = serializers.SerializerMethodField()
+    user_account_username = serializers.SerializerMethodField()
+    
     documented_by = serializers.PrimaryKeyRelatedField(
         queryset=AkitaUser.objects.all(),
         required=True,
         allow_null=False,
-        help_text="Required. User responsible for this documentation."
     )
     documented_by_name = serializers.CharField(source='documented_by.username', read_only=True)
+
     class Meta:
         model = SpeakerProfile
         fields = [
             'id', 'full_name', 'community', 'community_name',
-            'birth_year', 'is_living',
-            'user_account', 'user_account_username',
+            'birth_year', 'is_living', 'community_note',
+            'speaker_user_account', 'user_account_username', 
             'documented_by', 'documented_by_name'
         ]
-    def perform_create(self, serializer):
-        serializer.save(documented_by=self.request.user)
+
+    def get_community_name(self, obj):
+        return obj.community.name if obj.community else None
+
+    def get_user_account_username(self, obj):
+        return obj.speaker_user_account.username if obj.speaker_user_account else None

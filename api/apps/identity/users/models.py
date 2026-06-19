@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -46,6 +47,12 @@ class AkitaUser(AbstractUser):
         choices=UserRole.choices,
         default=UserRole.CONTRIBUTOR,
         db_index=True
+    )
+    slug = models.SlugField(
+        max_length=150,
+        unique=True,
+        blank=True,
+        help_text="A unique URL-friendly string identifier."
     )
     community = models.ForeignKey(
         'infrastructure_core.AkitaCommunity',
@@ -112,8 +119,14 @@ class AkitaUser(AbstractUser):
         """Only Admins and Superusers can elevate to Editor."""
         if not target_user:
             return False
+        
+        #Safe attribute checking handles AnonymousUser flawlessly
+        if not hasattr(target_user, 'get_role_level'):
+            return False
+        
         if self.role == UserRole.SUPERUSER:
             return True
+        
         if target_user.get_role_level() == 0: # Anonymous user
             return False
         # non_superusers cannot elevate a user to their own level
@@ -134,6 +147,11 @@ class AkitaUser(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
+    
+    def save(self, *args, **kwargs):
+        if not self.slug and self.username:
+            self.slug = slugify(self.username)
+        super().save(*args, **kwargs)
 
 
 class SpeakerProfile(models.Model):
