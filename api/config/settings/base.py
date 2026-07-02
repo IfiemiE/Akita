@@ -41,8 +41,9 @@ INSTALLED_APPS = [
     'django_filters',
     
     # Custom Apps
-    'apps.identity.users', # custom user app (to be migrated first before others!)
     'apps.infrastructure.core',
+    'apps.identity.users', # custom user app (to be migrated first before others!)
+    'apps.documentation.orthography',
     'apps.documentation.lexicon',
     'apps.documentation.media_annotations',
     'apps.documentation.culture',

@@ -5,7 +5,7 @@ from apps.common.constants import AKITA_COMMUNITIES
 
 class Language(models.Model):
     """The Language as a family of variant dialects"""  
-    name = models.CharField(max_length=100, unique=True, null=False)
+    name = models.CharField(max_length=100, unique=True, default='Ijaw')
     # set ISO 693-3 Language Standard Codes
     iso_code = models.CharField(max_length=10, blank=True, null=True)
     is_target = models.BooleanField(default=True)
@@ -71,7 +71,6 @@ class Dialect(models.Model):
     def __str__(self):
         return f'{self.name}-{self.language.name}'
          
-
  
 class Community(models.Model):
     """A general community class: A Speaker's community background""" 
@@ -126,7 +125,7 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
     parent = models.ForeignKey(
         'self',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name='children'
