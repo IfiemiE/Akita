@@ -256,8 +256,7 @@ class LexicalEntry(models.Model):
     variant_form = models.ManyToManyField(
         'self',
         symmetrical=True,
-        blank=True,
-        related_name='variants', 
+        blank=True, 
         help_text='other spellings for this same word in same orthographic system'
     )
     position = models.PositiveIntegerField(
@@ -282,7 +281,6 @@ class LexicalEntry(models.Model):
                 fields=['position'],
                 name='lexical_entry_position_unique',
                 deferrable=models.Deferrable.DEFERRED, # defer check until commit. note: a feature of postgresql
-                condition=models.Q(position__isnull=False) # Exclude null from unique constraint
             )
         ]
     
@@ -471,12 +469,13 @@ class Sense(models.Model):
     domains = models.ManyToManyField(SemanticDomain, blank=True) 
     register = models.ManyToManyField(
         Register,
-        blank=True, null=True,
+        blank=True,
         help_text='Register or style of usage - pragmatics'
     )
     is_ideophone = models.BooleanField(default=False)
     usage_label = models.ForeignKey(
         UsageLabel,
+        on_delete=models.CASCADE,
         blank=True, null=True,
         help_text='Register or style of usage - pragmatics'
     )

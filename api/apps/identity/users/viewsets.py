@@ -1,8 +1,7 @@
-from .models import AkitaUser, SpeakerProfile
-from .serializers import AkitaUserSerializer, SpeakerProfileSerializer
-from apps.common.permissions import IsAnonymousReadOnly, IsContributor, IsEditorOrAbove
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from rest_framework import permissions
+from .models import AkitaUser
+from .serializers import AkitaUserSerializer
+from apps.common.permissions import IsEditorOrAbove
+from rest_framework.viewsets import ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 
 
@@ -14,14 +13,3 @@ class UserViewSet(ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['role', 'community', 'first_name', 'last_name']
  
-    
-class SpeakerProfileViewSet(ModelViewSet):
-    """Speaker profiles: public read, contributor+ write."""
-    queryset = SpeakerProfile.objects.all()
-    serializer_class = SpeakerProfileSerializer
-    permission_classes = [IsAnonymousReadOnly]
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return [IsAnonymousReadOnly()]
-        return [IsContributor()]

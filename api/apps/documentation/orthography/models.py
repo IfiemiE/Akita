@@ -110,7 +110,11 @@ class Alphabet(models.Model):
 
 class GraphemeFeaturedExample(models.Model):
     """Selected word entry examples for each grapheme and phoneme pair"""
-    letter = models.ForeignKey(Alphabet, on_delete=models.CASCADE, related_name='featured_examples')
+    letter = models.ForeignKey(
+        Alphabet,
+        on_delete=models.CASCADE,
+        related_name='example_entries',
+    )
     entry = models.ForeignKey('documentation_lexicon.LexicalEntry', on_delete=models.CASCADE, related_name='grapheme_feature_appearances')
     priority = models.PositiveIntegerField(default=1)
     note = models.TextField(blank=True, null=True)
