@@ -454,7 +454,7 @@ class Sense(models.Model):
     """
     These will be relocated as rows to the Register and UsageLabel tables/models.
     """
-    word_entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='senses')
+    entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='senses')
     order = models.PositiveIntegerField(unique=True)
     translation = models.TextField(
         blank=True,
@@ -481,15 +481,87 @@ class Sense(models.Model):
     )
     cultural_note = models.CharField(max_length=255, blank=True, null=True)
     
+    class Meta:
+        unique_together = ('entry', 'order')
+        ordering = ['entry', 'order']
+    
+    def __str__(self):
+        return f"{self.entry.lemma} | Sense {self.order}"
 
+    
 class Pronunciation(models.Model):
-    pass
+    """ 
+    Entry Pronunciation variants with audio, supporting speaker variations.
+    """
+    
+    entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='pronunciations')
+    ipa = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text='IPA transcription of the word'
+    )
+    transcription_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('phonemic', 'Phonemic (Broad)'),
+            ('phonetic', 'Phonetic (Narrow)'),
+            ('both', 'Both (combined notation)'),
+        ],
+        default='phonemic'
+    )
+    dialect = models.ForeignKey(Dialect, on_delete=models.SET_NULL, null=True, blank=True)
+    speaker = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True, blank=True)
+    audio = models.ManyToManyField(
+        MediaFile,
+        limit_choices_to={'media_type': 'audio'},
+        blank=True, 
+        related_name='pronunciation_audio'
+    )
+    note = models.CharField(max_length=255, blank=True)
+    
+    def __str__(self):
+        if self.transcription_type == 'phonemic':
+            return f"{self.entry.lemma} /{self.ipa}/"
+        elif self.transcription_type == 'phonetic':
+            return f"{self.entry.lemma} [{self.ipa}]"
+        else:
+            return f"{self.entry.lemma} {self.ipa}"
+    
+
+
+# =============================================================================
+# 4. GRAMMATICAL & USAGE MODELS
+# =============================================================================
 
 class GrammaticalFeature(models.Model):
-    pass
+    """
+    Subcategorization features (valency, countability, noun class, etc.).
+    """
+    entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='grammatical_features')
+    category = models.ForeignKey(GrammaticalCategory, on_delete=models.CASCADE)
+    value = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.category.name}: {self.value}"
+    
 
 class Inflection(models.Model):
-    pass
+    """
+    Inflectional and derivational forms. Linked to Sense to support sense-dependent morphology.
+    """
+    sense = models.ForeignKey(Sense, on_delete=models.CASCADE, related_name='inflections')
+    entry = models.ForeignKey(LexicalEntry, on_delete=models.SET_NULL, null=True, blank=True)  # fallback
+
+    label = models.CharField(max_length=100, help_text="e.g., past tense, plural, gerund")
+    form = models.CharField(max_length=200)
+    dialect = models.ForeignKey(Dialect, on_delete=models.SET_NULL, null=True, blank=True)
+    note = models.TextField(blank=True)
+    
+    def __str__(self):
+        return f"{self.label}: {self.form}"
+
+
 
 class Etymology(models.Model):
     pass

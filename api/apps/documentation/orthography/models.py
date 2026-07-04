@@ -120,7 +120,7 @@ class GraphemeFeaturedExample(models.Model):
     note = models.TextField(blank=True, null=True)
     
     class Meta:
-        unique_together = ('letter', 'entry')
+        unique_together = [('letter', 'entry'), ('letter', 'priority')]
         ordering = ['priority']
     
     def __str__(self):
