@@ -4,6 +4,37 @@ from django.core.validators import FileExtensionValidator
 from model_utils import FieldTracker
 
 
+
+class ToneRegister(models.Model):
+    """
+    Master list of tones in the language.
+    Each tone has a name, a phonological value, and a diacritic mark.
+    """
+    NAME_CHOICES = [
+        ('low', 'Low'),
+        ('mid', 'Mid'),
+        ('rising', 'Rising'),
+        ('high', 'High'),
+        ('falling', 'Falling'),    
+    ]
+    MARK_CHOICES = [
+        ('diacritic', 'Diacritic'),
+        ('line under', 'Line Under'),
+        ('line over', 'Line Over'),
+        
+    ]
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+        choices=NAME_CHOICES,
+        default='mid',
+        help_text='The name of the tone (e.g., low, mid, rising, high, falling)',
+    )
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class PhonemeRegister(models.Model):
     """IPA sound characters detected in the dialect, collated as a reference register."""
     ipa = models.CharField(
@@ -17,9 +48,21 @@ class PhonemeRegister(models.Model):
         validators=[FileExtensionValidator(allowed_extensions=['mp3', 'wav', 'ogg']),
                     ]
     )
+    tone = models.ForeignKey(
+        ToneRegister,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        help_text="The distinction on sound level of phoneme type"
+    )
     is_vowel = models.BooleanField(default=False)
     description = models.CharField(max_length=100)
-
+    
+    class Meta:
+        ordering = ['ipa']
+        
+    def __str__(self):
+        return self.ipa
+    
 
 class GraphemeRegister(models.Model):
     """

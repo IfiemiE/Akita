@@ -127,7 +127,7 @@ class GrammaticalCategory(models.Model):
         return self.name
     
 # ============================================================
-#   REGISTER & USAGE LABELS
+#   REGISTER/PRAGMATICS & USAGE LABELS & SEMANTIC RELATIONS
 # ============================================================
 
 class Register(models.Model):
@@ -153,6 +153,7 @@ class Register(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class UsageLabel(models.Model):
     """
@@ -185,6 +186,23 @@ class UsageLabel(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.CharField(max_length=200, blank=True)
     
+    def __str__(self):
+        return self.name
+
+
+class SemanticRelationTypes(models.Model):
+    """
+    RELATION_CHOICES = [
+        ('synonym', 'Synonym'),
+        ('antonym', 'Antonym'),
+        ('hyponym', 'Hyponym'),
+        ('hypernym', 'Hypernym'),
+        
+    ]
+    """
+    name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True)
+
     def __str__(self):
         return self.name
 
@@ -550,36 +568,164 @@ class Inflection(models.Model):
     """
     Inflectional and derivational forms. Linked to Sense to support sense-dependent morphology.
     """
-    sense = models.ForeignKey(Sense, on_delete=models.CASCADE, related_name='inflections')
-    entry = models.ForeignKey(LexicalEntry, on_delete=models.SET_NULL, null=True, blank=True)  # fallback
+    sense = models.ForeignKey(
+        Sense, 
+        on_delete=models.CASCADE, 
+        related_name='inflections',
+        help_text='The inflection is associated with this sense of the entry'
+    )
+    entry = models.ForeignKey(
+        LexicalEntry, 
+        on_delete=models.SET_NULL, 
+        null=True, blank=True,
+        help_text='If inflection is entry-based, specify, else null for sense-based inflection'
+    )  # fallback
 
     label = models.CharField(max_length=100, help_text="e.g., past tense, plural, gerund")
     form = models.CharField(max_length=200)
     dialect = models.ForeignKey(Dialect, on_delete=models.SET_NULL, null=True, blank=True)
     note = models.TextField(blank=True)
     
+    def clean(self):
+        super().clean()
+        if not self.sense and not self.entry:
+            raise ValidationError("Inflection must be linked to either a sense or an entry.")
+        if self.entry and self.sense:
+            raise ValidationError(
+                "Inflection cannot be linked to both a sense and an entry."
+                "If the inflection is sense-specific, link it to the sense; otherwise, link it to the entry."
+            )
+        
+    
     def __str__(self):
         return f"{self.label}: {self.form}"
 
 
-
 class Etymology(models.Model):
-    pass
+    """
+    Etymological and historical information for a lexical entry
+    """
+    entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='etymology')
+    origin_text = models.TextField()
+    proto_form = models.CharField(max_length=200, blank=True)
+    source_entry = models.ForeignKey(LexicalEntry, on_delete=models.SET_NULL, null=True, blank=True)
+    
 
 class Example(models.Model):
-    pass
+    """
+    Example sentences/phrases with audio, interlinear gloss and speaker metadata
+    """
+    sense = models.ForeignKey(Sense, on_delete=models.CASCADE, related_name='examples', blank=True, null=True)
+    text = models.TextField()
+    translation = models.TextField()
+    interlinear_gloss = models.TextField(blank=True)
+    audio = models.ManyToManyField(
+        MediaFile,
+        blank=True,
+        limit_choices_to={'media_type':'audio'},
+    )
+    speaker = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True, blank=True)
+    dialect = models.ForeignKey(Dialect, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.sense.entry.lemma} example(s)"
 
-class Collocations(models.Model):
-    pass
+
+class Collocation(models.Model):
+    """
+    Word cluster:
+    Group of 2-3 words spoken together (sometimes, for a specific meaning)
+    """
+    basic_entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='collocations')
+    other_entries = models.ManyToManyField(LexicalEntry, related_name='collocation_with')
+    audio = models.ManyToManyField(
+        MediaFile,
+        blank=True,
+        limit_choices_to={'media_type':'audio'},
+    )
+    expression = models.TextField()
+    translation = models.TextField(blank=True)
+    speaker = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True, blank=True)
+    expression = models.TextField(blank=True)
+
+    def clean(self):
+        super().clean()
+        if self.basic_entry and self.other_entries:
+            if self.pk:
+                if self.other_entries.filter(pk=self.basic_entry_id).exists():
+                    raise ValidationError(
+                        "An entry cannot be connected to itself"
+                    )
+    
+    def __str__(self):
+        return f"Collocations for {self.basic_entry.lemma}"
+
 
 class SemanticRelation(models.Model):
-    pass
+    """
+    Semantic and Phonological relationships between lexial entries
+    """
+    source_entry = models.ForeignKey(
+        LexicalEntry,
+        on_delete=models.CASCADE,
+        related_name='related_entries',
+    )
+    target_entry = models.ForeignKey(
+        LexicalEntry,
+        on_delete=models.CASCADE,
+        related_name='related_entries',
+    )
+    relation_type = models.ForeignKey(SemanticRelationTypes, on_delete=models.CASCADE, related_name='related_pair')
+    note = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('source_entry', 'target-entry', 'relation_type')    
 
 class Illustration(models.Model):
-    pass
+    """
+    Visual aids (images, diagrams) for concrete or cultural concepts
+    """
+    sense = models.ForeignKey(
+        Sense,
+        on_delete=models.CASCADE,
+        related_name='illustrations',
+        blank=True, null=True,
+    )
+    image = models.ForeignKey(MediaFile, on_delete=models.CASCADE, blank=True, null=True)
+    caption = models.CharField(max_length=255)
+
 
 class Source(models.Model):
-    pass
+    """
+    Provenance and word documentation metadata
+    """
+    entry = models.ForeignKey(
+        LexicalEntry,
+        on_delete = models.CASCADE,
+        related_name='sources',
+        blank=True, null=True,
+    )
+    example = models.ForeignKey(
+        Example,
+        on_delete=models.CASCADE,
+        related_name='sources',
+        blank=True, null=True,
+    )
+    speaker = models.ForeignKey(Speaker, on_delete=models.SET_NULL, null=True)
+    recording_date = models.DateField(blank=True, null=True)
+    location = models.CharField(max_length=200, blank=True)
+    notes = models.TextField(blank=True)
+
 
 class CommunityNote(models.Model):
-    pass
+    """
+    Community-contributed notes, corrections or cultural insights.
+    Supports collaborative language revitalization.
+    """
+    sense = models.ForeignKey(Sense, on_delete=models.CASCADE, related_name='community_notes')
+    user = models.ForeignKey(AkitaUser, on_delete=models.CASCADE, related_name='entry_notes')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-created_at']
