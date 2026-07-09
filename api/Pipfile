@@ -9,6 +9,7 @@ djangorestframework = "*"
 psycopg2-binary = "*"
 django-environ = "*"
 django-filter = "*"
+pillow = "*"
 
 [dev-packages]
 

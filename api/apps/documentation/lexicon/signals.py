@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from .models import Collocation
 
 
-@receiver(m2m_changed, sender=Collocation.multiple_relations.though)
+@receiver(m2m_changed, sender=Collocation.other_entries.through)
 def prevent_collocation_overlap(sender, instance, action, pk_set, **kwargs):
     if action == 'pre_add' and instance.basic_entry_id:
         raise ValidationError(

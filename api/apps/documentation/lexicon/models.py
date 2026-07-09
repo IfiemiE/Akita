@@ -4,6 +4,8 @@ from model_utils import FieldTracker
 from apps.identity.users.models import AkitaUser
 from apps.infrastructure.core.models import Language, Dialect
 from apps.documentation.orthography.models import Alphabet
+from apps.common.storage import set_user_uploaded_file_path
+
 
 # ============================================================
 #   MEDIA
@@ -556,9 +558,9 @@ class GrammaticalFeature(models.Model):
     """
     Subcategorization features (valency, countability, noun class, etc.).
     """
-    entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='grammatical_features')
-    category = models.ForeignKey(GrammaticalCategory, on_delete=models.CASCADE)
-    value = models.CharField(max_length=200)
+    entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='grammatical_features', null=True, blank=True)
+    category = models.ForeignKey(GrammaticalCategory, on_delete=models.CASCADE, null=True, blank=True)
+    value = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return f"{self.category.name}: {self.value}"
@@ -572,6 +574,7 @@ class Inflection(models.Model):
         Sense, 
         on_delete=models.CASCADE, 
         related_name='inflections',
+        null=True, blank=True,
         help_text='The inflection is associated with this sense of the entry'
     )
     entry = models.ForeignKey(
@@ -581,8 +584,8 @@ class Inflection(models.Model):
         help_text='If inflection is entry-based, specify, else null for sense-based inflection'
     )  # fallback
 
-    label = models.CharField(max_length=100, help_text="e.g., past tense, plural, gerund")
-    form = models.CharField(max_length=200)
+    label = models.CharField(max_length=100, null=True, blank=True, help_text="e.g., past tense, plural, gerund")
+    form = models.CharField(max_length=200, blank=True, null=True, help_text="The inflected form of the word")
     dialect = models.ForeignKey(Dialect, on_delete=models.SET_NULL, null=True, blank=True)
     note = models.TextField(blank=True)
     
@@ -605,10 +608,10 @@ class Etymology(models.Model):
     """
     Etymological and historical information for a lexical entry
     """
-    entry = models.ForeignKey(LexicalEntry, on_delete=models.CASCADE, related_name='etymology')
-    origin_text = models.TextField()
+    entry = models.OneToOneField(LexicalEntry, on_delete=models.CASCADE, related_name='etymology', null=True, blank=True)
+    origin_text = models.TextField(blank=True)
     proto_form = models.CharField(max_length=200, blank=True)
-    source_entry = models.ForeignKey(LexicalEntry, on_delete=models.SET_NULL, null=True, blank=True)
+    source_entry = models.ForeignKey(LexicalEntry, on_delete=models.SET_NULL, null=True, blank=True, related_name='etymology_sources')
     
 
 class Example(models.Model):
@@ -616,8 +619,8 @@ class Example(models.Model):
     Example sentences/phrases with audio, interlinear gloss and speaker metadata
     """
     sense = models.ForeignKey(Sense, on_delete=models.CASCADE, related_name='examples', blank=True, null=True)
-    text = models.TextField()
-    translation = models.TextField()
+    text = models.TextField(blank=True)
+    translation = models.TextField(blank=True)
     interlinear_gloss = models.TextField(blank=True)
     audio = models.ManyToManyField(
         MediaFile,
@@ -668,18 +671,18 @@ class SemanticRelation(models.Model):
     source_entry = models.ForeignKey(
         LexicalEntry,
         on_delete=models.CASCADE,
-        related_name='related_entries',
+        related_name='related_targets',
     )
     target_entry = models.ForeignKey(
         LexicalEntry,
         on_delete=models.CASCADE,
-        related_name='related_entries',
+        related_name='related_sources',
     )
     relation_type = models.ForeignKey(SemanticRelationTypes, on_delete=models.CASCADE, related_name='related_pair')
     note = models.TextField(blank=True)
 
     class Meta:
-        unique_together = ('source_entry', 'target-entry', 'relation_type')    
+        unique_together = ('source_entry', 'target_entry', 'relation_type')    
 
 class Illustration(models.Model):
     """
@@ -692,7 +695,7 @@ class Illustration(models.Model):
         blank=True, null=True,
     )
     image = models.ForeignKey(MediaFile, on_delete=models.CASCADE, blank=True, null=True)
-    caption = models.CharField(max_length=255)
+    caption = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Source(models.Model):
@@ -723,9 +726,11 @@ class CommunityNote(models.Model):
     Supports collaborative language revitalization.
     """
     sense = models.ForeignKey(Sense, on_delete=models.CASCADE, related_name='community_notes')
-    user = models.ForeignKey(AkitaUser, on_delete=models.CASCADE, related_name='entry_notes')
+    user = models.ForeignKey(AkitaUser, on_delete=models.CASCADE, related_name='entry_notes', null=True, blank=True)
+    content = models.TextField()
+    image = models.ImageField(upload_to=set_user_uploaded_file_path, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_verified = models.BooleanField(default=False)
     
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-created_at']    
