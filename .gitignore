@@ -1,6 +1,8 @@
 .vscode/
-.env
 __pycache__/
+
+.env
 test_db.sqlite3
 .project_tree.md
 .venv/
+akita.code-workspace
