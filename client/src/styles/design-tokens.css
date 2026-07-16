@@ -19,6 +19,54 @@
       and IPA transcription. This is the app's typographic signature.
 */
 
+/* ==========================================================================
+   CHARIS SIL — SYSTEM, CDN & OFFLINE-FALLBACK CONFIGURATION
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Charis SIL';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap; /* Keeps text legible with a fallback while loading */
+  
+  src: 
+    /* 1. First, check if the user physically has it installed on their OS */
+    local('Charis SIL'),
+    local('CharisSIL-Regular'),
+    
+    /* 2. Next, try Google's globally-optimized CDN */
+    url('https://fonts.gstatic.com/s/charissil/v15/0YqyK36uX268C3_Y_EaX8S1g-A.woff2') format('woff2'),
+    
+    /* 3. If the network is down/blocked, fall back to our bundled node_modules asset */
+    url('@fontsource/charis-sil/files/charis-sil-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Charis SIL';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  
+  src: 
+    local('Charis SIL Italic'),
+    local('CharisSIL-Italic'),
+    url('https://fonts.gstatic.com/s/charissil/v15/0YqzK36uX268C3_Y_Ea_6S506B1g-A.woff2') format('woff2'),
+    url('@fontsource/charis-sil/files/charis-sil-latin-400-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Charis SIL';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  
+  src: 
+    local('Charis SIL Bold'),
+    local('CharisSIL-Bold'),
+    url('https://fonts.gstatic.com/s/charissil/v15/0YqyK36uX268C3_Y_EaX8S1g-A.woff2') format('woff2'),
+    url('@fontsource/charis-sil/files/charis-sil-latin-700-normal.woff2') format('woff2');
+}
+
 :root {
   /* ============================================================
      COLOR — LIGHT THEME (default)
