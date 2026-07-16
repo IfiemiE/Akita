@@ -1,0 +1,32 @@
+/* ==========================================================================
+   1. CSS RESET & BOX MODEL
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box; /* Makes padding and borders match element width */
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure consistent rendering across iOS and other modern browsers */
+html, body {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+/* ==========================================================================
+   2. BASE ELEMENT STYLES (Sensible Defaults)
+   ========================================================================== */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%; /* Prevents images from breaking layouts */
+}
+
+input, button, textarea, select {
+  font: inherit; /* Prevents form elements from using default browser fonts */
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

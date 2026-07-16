@@ -1,0 +1,12 @@
+/* Load Tailwind engine - tailwind version 3 style.*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* The main outer wrapper of your React Application */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
